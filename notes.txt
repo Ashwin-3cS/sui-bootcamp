@@ -1,0 +1,58 @@
+//OTW
+// otw ->  token module contract
+
+
+module token ::  token { 
+
+
+    //rules to be followed 
+    // 1. the struct should have the drop 
+    // 2. you use the witness in init() -/> so that you generate one treasury cap 
+
+
+
+    //coin::create_currency()-> treasuryCap<TOKEN> , metadata
+    //eg : deploy -> i get the treasury_cap ->sender()->initiates the tx
+    //initialised the coin type 
+    public struct TOKEN has drop {}
+
+
+
+    //Treasury object 
+    //why ? -> lp -> there is multiples tokens involved and i need to store the tokens in the contract 
+
+    //vault or treasuryobject 
+    
+
+    //abilites that we assign to the struct 
+    // key  -> key 
+    // drop  -> drop abilities strucyt gets dropped
+    // copy  -> you make a clone of the object or ds .clone()//rust 
+    // store  -> store ability and its assigned to the object which is gonna be stored in another object 
+
+
+    // struct ashwin {
+    //     character : Character 
+    // }
+
+
+
+    // transfer primitives
+
+    // public_transfer() transfer() pub_transfer () -> use for geneeric types <T> ;  using tranfser() coin::SUI -> transfer()
+
+    // public_freeze_object () -> whatever obvject you pass in is going to be immutable and can't be dealt with ; you cant delete it 
+    // share_object()  -> shared the object to sui global storage anyone can access it (eg: LP)
+
+
+
+
+
+// donts
+// upgrade cap no usage -> delete it very imp
+// the metadata -> should be frozen 
+
+
+}
+
+
