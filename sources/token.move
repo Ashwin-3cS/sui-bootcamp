@@ -17,13 +17,36 @@ module token ::  token {
     use std::ascii;
     use sui::coin;
     use sui::url;
+    use sui::vec_set::VecSet;
+    use sui::vec_set;
     
 
     const TOKEN_SUPPLY:u64 = 1000000000000000000; 
 
+
+     //error codes :
+     const E_NOT_OWNER_ADMIN: u64 = 1;
     public struct TOKEN has drop {}
 
-   
+
+     // witness object 
+     public struct Witness has drop {}
+
+     // adminRegistry object 
+     public struct AdminRegistry has key {
+        id : UID,
+        owner_address : address,
+        admin_address  : VecSet<address>        
+        
+   }
+
+
+
+
+     // ownercap object 
+     public struct OwnerCap has key, store {
+         id: UID
+     }    
 
    // init the treasury 
    public struct Treasury has key {
@@ -52,6 +75,21 @@ module token ::  token {
                treasury__wal_address : treas_address
           };
 
+          let owner_cap = OwnerCap {
+               id : object::new(ctx),
+          };
+
+
+          let admin_registry = AdminRegistry { 
+               id : object::new(ctx),
+               owner_address : sender ,
+               admin_address : vec_set::empty<address>()
+          };
+
+
+          // vec![] -> [1,1,2,3] -> uniques items 
+
+          // vec_set -> [1,2,3,4, 1 ] ; 
 
           //mint() // mint () in the init ratther it having a separate fun
           // OTW here and this OTW can't be replicated after the module is deployed as well
@@ -64,8 +102,50 @@ module token ::  token {
           transfer::public_freeze_object(metadata);
           transfer::share_object(treasury);
           
+          transfer::public_transfer(owner_cap, sender); // tranfserring the treasury_Cap to the sender
+          transfer::share_object(admin_registry);
     
    }
+
+
+
+     fun gen_witness(): Witness {
+          Witness{}
+     }
+
+     fun add_admin (
+          admin_registry : &mut AdminRegistry,
+          _witness : Witness ,
+          admin_to_add : address,
+
+     ) { 
+          vec_set::insert(&mut admin_registry.admin_address , admin_to_add); //admin is added 
+          // event emitters
+          //dropped here 
+     }
+
+     entry fun called_by_two_entity(
+          admin_registry : &mut AdminRegistry, 
+          admin_address_to_add : address,
+          ctx : &TxContext
+
+     ) { 
+
+          let sender =  tx_context::sender(ctx); // the one who is calling this fucntion
+          //assert statement -> 
+          assert!(vec_set::contains(&admin_registry.admin_address, &sender)||admin_registry.owner_address == sender,E_NOT_OWNER_ADMIN);  //checking is good
+          //assert whether the admin is already added 
+          let witness = gen_witness();
+          add_admin( admin_registry ,witness,admin_address_to_add);
+     }
+
+
+//upgradability 
+
+
+entry fun migrate () {
+     
+}
 
 
 }
